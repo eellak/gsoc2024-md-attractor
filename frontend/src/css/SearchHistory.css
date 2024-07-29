@@ -1,0 +1,32 @@
+/* SearchHistory.css */
+.search-history-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-history-header {
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #000;  /* Set header text color to black */
+}
+
+.list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f1f1f1;
+}
+
+.text-muted {
+    font-size: 0.9rem;
+}

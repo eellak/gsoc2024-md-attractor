@@ -1,8 +1,10 @@
 import React from 'react';
 import SongList from '../components/SongList';
+import BackgroundBubbles from '../components/BackgroundBubbles';
 
 const HomePage = () => (
-    <div className="container">
+    <div className="home-page container">
+        <BackgroundBubbles />
         <SongList />
     </div>
 );
