@@ -1,0 +1,67 @@
+.song-detail-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 80vh;
+    overflow-y: auto;
+    transition: min-height 0.3s ease;
+}
+
+.song-detail-container.has-content {
+    min-height: 80vh;
+}
+
+.song-detail-container:not(.has-content) {
+    min-height: 300px;
+}
+
+.song-detail-header {
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #000;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    z-index: 1;
+}
+
+.song-details {
+    list-style: none;
+    padding: 0;
+}
+
+.song-details p {
+    margin: 10px 0;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.song-details strong {
+    font-weight: bold;
+    color: #333;
+}
+
+.song-details ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+.song-details li {
+    padding: 15px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.song-details li:hover {
+    background-color: #f1f1f1;
+}
+
+.song-details .text-muted {
+    font-size: 0.9rem;
+    color: #6c757d;
+}

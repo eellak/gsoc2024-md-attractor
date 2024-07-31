@@ -1,4 +1,3 @@
-/* SearchHistory.css */
 .search-history-container {
     background-color: #f8f9fa;
     padding: 20px;
@@ -9,7 +8,7 @@
 .search-history-header {
     margin-bottom: 20px;
     font-weight: bold;
-    color: #000;  /* Set header text color to black */
+    color: #000;  
 }
 
 .list-group-item {
