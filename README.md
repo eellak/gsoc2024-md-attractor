@@ -7,7 +7,7 @@
 ### Project: MD-Attractor
 
 #### Other Details
-- **Contributor:** Ayush Ray
+- **Contributor:** [Ayush Ray](https://github.com/aayushray)
 - **Mentors:** [Giannis Prokopiou](https://github.com/GiannisProkopiouOrfium), [Panagiotis Sfendourakis](https://github.com/sfendourakis)
 
 ## Project Overview

@@ -79,7 +79,9 @@ def trackDetails(request) -> Response:
         serializer = serializers.SongSerializer(song)
         recommended_songs = song.recommendedSongs.all().order_by('-popularity')
         recommendation = [s.songName for s in recommended_songs]
-        return Response({"Recommended Songs": recommendation, "Networked Artist": networkedArtistName})
+
+        networkedArtistName = networkedArtistName[:10]
+        return Response({"Recommended Songs": recommendation, "Networked Artist": networkedArtistName, "Networked Artist ID": networkedArtistID})
 
 
 

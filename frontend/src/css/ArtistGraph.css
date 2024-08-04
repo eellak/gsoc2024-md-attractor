@@ -1,0 +1,58 @@
+.artist-graph-container {
+    width: 100%;
+    height: 100vh; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000; 
+    background-color: rgba(248, 249, 250, 0.95); 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.artist-graph-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.artist-graph-content {
+    width: 100%;
+    height: calc(100% - 60px); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Style for the DiagramComponent */
+.artist-graph-content .e-diagram {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    background-color: transparent !important;
+}
+
+/* Close button style */
+.close-graph-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.close-graph-button:hover {
+    background-color: #d32f2f;
+}
