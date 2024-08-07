@@ -7,6 +7,7 @@ import ArtistGraph from './ArtistGraph';
 
 const SongList = () => {
     const [searchQuery, setSearchQuery] = useState('');
+    const [songName, setSongName] = useState('');
     const [songs, setSongs] = useState([]);
     const [networkedArtists, setNetworkedArtists] = useState([]);
     const [networkedArtistsID, setNetworkedArtistsID] = useState([]);
@@ -18,9 +19,7 @@ const SongList = () => {
     useEffect(() => {
         const fetchImages = async () => {
             if (networkedArtistsID.length > 0) {
-                console.log('Fetching images for artist IDs:', networkedArtistsID);
                 const images = await fetchArtistImages(networkedArtistsID);
-                console.log('Received artist images:', images);
                 setArtistImages(images);
             }
         };
@@ -40,6 +39,7 @@ const SongList = () => {
                 setNetworkedArtistsID([]);
                 setArtistImages([]);
             } else {
+                setSongName(data['Song Name']);
                 setSongs(data['Recommended Songs'] || []);
                 setNetworkedArtists(data['Networked Artist'] || []);
                 setNetworkedArtistsID(data['Networked Artist ID'] || []);
@@ -73,6 +73,7 @@ const SongList = () => {
                     <button type="submit" className="btn btn-primary">Search</button>
                 </div>
             </form>
+            {songName && <h3 className="text-center">{songName}</h3>}
             {error && <div className="alert alert-danger">{error}</div>}
             {loading ? (
                 <div className="d-flex justify-content-center align-items-center loader-container">

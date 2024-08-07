@@ -80,8 +80,8 @@ def trackDetails(request) -> Response:
         recommended_songs = song.recommendedSongs.all().order_by('-popularity')
         recommendation = [s.songName for s in recommended_songs]
 
-        networkedArtistName = networkedArtistName[:10]
-        return Response({"Recommended Songs": recommendation, "Networked Artist": networkedArtistName, "Networked Artist ID": networkedArtistID})
+        networkedArtistName = networkedArtistName[:11]
+        return Response({"Recommended Songs": recommendation, "Song Name": songName, "Networked Artist": networkedArtistName, "Networked Artist ID": networkedArtistID})
 
 
 

@@ -12,31 +12,43 @@ const ArtistGraph = ({ artists, artistImages }) => {
       const centerX = 250;
       const centerY = 250;
 
-      console.log('Artist Images in ArtistGraph:', artistImages);
+      const centerArtist = artists[0];
+      const centerImageInfo = artistImages.find(img => img.name === centerArtist) || {};
 
       const nodes = artists.map((artist, index) => {
-        const angle = (index / artists.length) * 2 * Math.PI;
+        const angle = (index / (artists.length - 1)) * 2 * Math.PI;
         const imageInfo = artistImages.find(img => img.name === artist) || {};
-        return {
-          id: `artist-${index}`,
-          label: artist,
-          shape: 'circularImage',
-          image: imageInfo.imageUrl || defaultImage,
-          size: 30,
-          x: centerX + radius * Math.cos(angle),
-          y: centerY + radius * Math.sin(angle),
-          fixed: true,
-        };
+
+        if (index === 0) {
+          return {
+            id: `artist-${index}`,
+            label: artist,
+            shape: 'circularImage',
+            image: centerImageInfo.imageUrl || defaultImage,
+            size: 50, 
+            x: centerX,
+            y: centerY,
+            fixed: true,
+          };
+        } else {
+          return {
+            id: `artist-${index}`,
+            label: artist,
+            shape: 'circularImage',
+            image: imageInfo.imageUrl || defaultImage,
+            size: 30,
+            x: centerX + radius * Math.cos(angle),
+            y: centerY + radius * Math.sin(angle),
+            fixed: true,
+          };
+        }
       });
 
-      const edges = [];
-      for (let i = 0; i < artists.length - 1; i++) {
-        edges.push({
-          id: `edge-${i}`,
-          from: `artist-${i}`,
-          to: `artist-${i + 1}`,
-        });
-      }
+      const edges = artists.slice(1).map((_, index) => ({
+        id: `edge-${index}`,
+        from: 'artist-0', 
+        to: `artist-${index + 1}`,
+      }));
 
       setGraph({ nodes, edges });
 
@@ -44,7 +56,6 @@ const ArtistGraph = ({ artists, artistImages }) => {
         nodes: {
           shape: 'circularImage',
           borderWidth: 3,
-          size: 30,
           color: {
             border: '#000000',
             background: '#ffffff',
@@ -54,7 +65,8 @@ const ArtistGraph = ({ artists, artistImages }) => {
           },
         },
         edges: {
-          color: '#000000',
+          color: '#e0e0e0',
+          width: 1.5,
         },
         physics: false,
       });
@@ -62,15 +74,16 @@ const ArtistGraph = ({ artists, artistImages }) => {
   }, [artists, artistImages]);
 
   return (
-    <div style={{ height: '500px', width: '100%' }}>
+    <div style={{ height: '500px' }}>
       {graph && graph.nodes.length > 0 && (
-        <Graph 
-          graph={graph} 
-          options={options} 
+        <Graph
+          graph={graph}
+          options={options}
           events={{
-            selectNode: (event) => {
-              const { nodes } = event;
-              console.log('Selected node:', nodes[0]);
+            select: ({ nodes }) => {
+              if (nodes.length > 0) {
+                console.log('Selected node:', nodes[0]);
+              }
             },
           }}
         />

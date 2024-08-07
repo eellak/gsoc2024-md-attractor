@@ -4,13 +4,13 @@ export const fetchArtistImages = async (artistIds) => {
     const clientSecret = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
 
     if (!clientId || !clientSecret) {
-      console.error("Client ID or Client Secret is not set.");
       return artistIds.map(id => ({ id, imageUrl: null, error: "Client ID or Client Secret not set" }));
     }
 
-    const auth = btoa(`${clientId}:${clientSecret}`);
+    const asciiString = `${clientId}:${clientSecret}`;
+
     const headers = {
-      Authorization: `Basic ${auth}`,
+      "Authorization": 'Basic ' + btoa(asciiString),
       "Content-Type": "application/x-www-form-urlencoded",
     };
 
@@ -46,7 +46,6 @@ export const fetchArtistImages = async (artistIds) => {
     const artistImages = await Promise.all(artistPromises);
     return artistImages;
   } catch (error) {
-    console.error("Error fetching artist images:", error);
     return artistIds.map(id => ({ id, imageUrl: null, error: error.message }));
   }
 };
