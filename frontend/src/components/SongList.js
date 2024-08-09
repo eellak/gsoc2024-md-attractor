@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchRecommendedSong } from '../services/api';
-import { fetchArtistImages } from '../services/spotifyAPI';
+import { fetchArtistImages, fetchSongDetails } from '../services/spotifyAPI';
 import { Oval } from 'react-loader-spinner';
 import '../css/SongList.css';
 import ArtistGraph from './ArtistGraph';
@@ -9,6 +9,7 @@ const SongList = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [songName, setSongName] = useState('');
     const [songs, setSongs] = useState([]);
+    const [songDetails, setSongDetails] = useState([]);
     const [networkedArtists, setNetworkedArtists] = useState([]);
     const [networkedArtistsID, setNetworkedArtistsID] = useState([]);
     const [artistImages, setArtistImages] = useState([]);
@@ -25,6 +26,18 @@ const SongList = () => {
         };
         fetchImages();
     }, [networkedArtistsID]);
+
+    useEffect(() => {
+        const fetchDetails = async () => {
+            if (songs.length > 0) {
+                const details = await Promise.all(
+                    songs.map(song => fetchSongDetails(song))
+                );
+                setSongDetails(details);
+            }
+        };
+        fetchDetails();
+    }, [songs]);
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -60,7 +73,7 @@ const SongList = () => {
 
     return (
         <div className={`song-list-container container mt-5 ${hasContent ? 'has-content' : ''}`}>
-            <h2 className="text-center">Recommended Songs</h2>
+            <h2 className="text-center">RECOMMENDED SONGS</h2>
             <form onSubmit={handleSearch} className="mb-3 search-form">
                 <div className="input-group">
                     <input
@@ -83,9 +96,14 @@ const SongList = () => {
                 <>
                     {searched && (
                         <ul className="list-group mt-3">
-                            {songs.length > 0 ? (
-                                songs.map((song, index) => (
-                                    <li key={index} className="list-group-item">{song}</li>
+                            {songDetails.length > 0 ? (
+                                songDetails.map((song, index) => (
+                                    <li key={index} className="list-group-item song-item">
+                                        <a href={song.spotifyUrl} target="_blank" rel="noopener noreferrer" className="song-link">
+                                            <img src={song.image} alt={song.name} className="song-image" />
+                                            {song.name}
+                                        </a>
+                                    </li>
                                 ))
                             ) : (
                                 <li className="list-group-item">No songs found</li>
@@ -94,32 +112,8 @@ const SongList = () => {
                     )}
                     {searched && networkedArtists.length > 0 && (
                         <div className="mt-4">
-                            <h3 className="text-center">Networked Artists</h3>
-                            <ul className="list-group mt-3">
-                                {networkedArtists.map((artist, index) => (
-                                    <li key={index} className="list-group-item">
-                                        {artist}
-                                        {artistImages[index] && artistImages[index].imageUrl && (
-                                            <img 
-                                                src={artistImages[index].imageUrl} 
-                                                alt={artist} 
-                                                style={{width: '50px', height: '50px', marginLeft: '10px'}}
-                                                onError={(e) => {
-                                                    console.error(`Failed to load image for ${artist}`);
-                                                    e.target.src = 'https://via.placeholder.com/50';
-                                                }}
-                                            />
-                                        )}
-                                        {artistImages[index] && artistImages[index].error && (
-                                            <span style={{color: 'red', marginLeft: '10px'}}>
-                                                Error: {artistImages[index].error}
-                                            </span>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
                             <div className="mt-4">
-                                <h3 className="text-center">Artist Network Graph</h3>
+                                <h3 className="text-center">NETWORKED ARTIST GRAPH</h3>
                                 <ArtistGraph artists={networkedArtists} artistImages={artistImages} />
                             </div>
                         </div>
