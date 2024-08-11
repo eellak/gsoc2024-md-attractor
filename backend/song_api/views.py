@@ -144,12 +144,14 @@ def songDetails(request, id: str) -> Response:
     serializer = serializers.SongSerializer(song)
     recommended_songs = song.recommendedSongs.all().order_by('-popularity')
     recommendation = [s.songName for s in recommended_songs]
-    artistNetwork = song.artistName.all()
+    artistNetwork = song.artistName.all()[:11]
     networkedArtistName = [a.artistName for a in artistNetwork]
+    networkedArtistID = [a.artistId for a in artistNetwork]
 
     data = {
         "songName": song.songName,
         "recommendedSongs": recommendation,
-        "networkedArtists": networkedArtistName
+        "networkedArtists": networkedArtistName,
+        "networkedArtistID": networkedArtistID
     }
     return Response(data)
