@@ -48,7 +48,7 @@ const SongDetail = () => {
     if (loading) {
         return (
             <div className="d-flex justify-content-center align-items-center loader-container">
-                <Oval height={80} width={80} color="#123abc" ariaLabel="loading" />
+                <Oval height={80} width={80} color="#ffffff" ariaLabel="loading" />
             </div>
         );
     }
@@ -65,27 +65,35 @@ const SongDetail = () => {
 
     return (
         <div className="song-detail-container container mt-5">
-            <h2 className="text-center song-detail-header">{songName}</h2>
-            <div className="song-details">
-                <p className="text-center"><strong>Recommended Songs</strong></p>
-                <ul className="list-group">
-                    {songDetails.length > 0 ? (
-                        songDetails.map((song, index) => (
-                            <li key={index} className="list-group-item song-item">
-                                <a href={song.spotifyUrl} target="_blank" rel="noopener noreferrer" className="song-link">
-                                    <img src={song.image} alt={song.name} className="song-image" />
-                                    {song.name}
-                                </a>
-                            </li>
-                        ))
-                    ) : (
-                        <li className="list-group-item">No recommended songs found</li>
+            <div className="top-container">
+                <h2 className="text-center song-detail-header">{songName}</h2>
+            </div>
+            <div className="content-container">
+                <div className="left-container">
+                    <p className="text-center"><strong>Recommended Songs</strong></p>
+                    <ul className="list-group">
+                        {songDetails.length > 0 ? (
+                            songDetails.map((song, index) => (
+                                <li key={index} className="list-group-item song-item">
+                                    <a href={song.spotifyUrl} target="_blank" rel="noopener noreferrer" className="song-link">
+                                        <img src={song.image} alt={song.name} className="song-image" />
+                                        {song.name}
+                                    </a>
+                                </li>
+                            ))
+                        ) : (
+                            <li className="list-group-item">No recommended songs found</li>
+                        )}
+                    </ul>
+                </div>
+                <div className="right-container">
+                    {networkedArtists?.length > 0 && (
+                        <div>
+                            <h3 className="container-title text-center">Networked Artist Graph</h3>
+                            <ArtistGraph artists={networkedArtists} artistImages={artistImages} />
+                        </div>
                     )}
-                </ul>
-                <p className="text-center"><strong>Networked Artists</strong></p>
-                {networkedArtists?.length > 0 && (
-                    <ArtistGraph artists={networkedArtists} artistImages={artistImages} />
-                )}
+                </div>
             </div>
         </div>
     );

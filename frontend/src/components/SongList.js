@@ -69,32 +69,36 @@ const SongList = () => {
         }
     };
 
-    const hasContent = searched || songs.length > 0 || networkedArtists.length > 0 || networkedArtistsID.length > 0 || error;
-
     return (
-        <div className={`song-list-container container mt-5 ${hasContent ? 'has-content' : ''}`}>
-            <h2 className="text-center">RECOMMENDED SONGS</h2>
-            <form onSubmit={handleSearch} className="mb-3 search-form">
-                <div className="input-group">
-                    <input
-                        type="text"
-                        className="form-control"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Enter Song Name"
-                    />
-                    <button type="submit" className="btn btn-primary">Search</button>
-                </div>
-            </form>
-            {songName && <h3 className="text-center">{songName}</h3>}
-            {error && <div className="alert alert-danger">{error}</div>}
-            {loading ? (
-                <div className="d-flex justify-content-center align-items-center loader-container">
-                    <Oval height={80} width={80} color="#123abc" ariaLabel="loading" />
-                </div>
-            ) : (
-                <>
-                    {searched && (
+        <div className="container mt-5">
+            <div className="top-container">
+                <h2 className="text-center">RECOMMENDED SONGS</h2>
+                <form onSubmit={handleSearch} className="mb-3 search-form">
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Enter Song Name"
+                        />
+                        <button type="submit" className="btn btn-primary">Search</button>
+                    </div>
+                </form>
+                {songName && <h3 className="text-center">{songName}</h3>}
+                {error && <div className="alert alert-danger">{error}</div>}
+                {loading && (
+                    <div className="d-flex justify-content-center align-items-center loader-container">
+                        <Oval height={80} width={80} color="#ffffff" ariaLabel="loading" />
+                    </div>
+                
+                )}
+            </div>
+
+            {!loading && searched && (
+                <div className="content-container">
+                    <div className="left-container">
+                        <h3 className="container-title text-center">Song List</h3>
                         <ul className="list-group mt-3">
                             {songDetails.length > 0 ? (
                                 songDetails.map((song, index) => (
@@ -109,16 +113,16 @@ const SongList = () => {
                                 <li className="list-group-item">No songs found</li>
                             )}
                         </ul>
-                    )}
-                    {searched && networkedArtists.length > 0 && (
-                        <div className="mt-4">
-                            <div className="mt-4">
-                                <h3 className="text-center">NETWORKED ARTIST GRAPH</h3>
+                    </div>
+                    <div className="right-container">
+                        {networkedArtists.length > 0 && (
+                            <div>
+                                <h3 className="container-title text-center">Networked Artist Graph</h3>
                                 <ArtistGraph artists={networkedArtists} artistImages={artistImages} />
                             </div>
-                        </div>
-                    )}
-                </>
+                        )}
+                    </div>
+                </div>
             )}
         </div>
     );

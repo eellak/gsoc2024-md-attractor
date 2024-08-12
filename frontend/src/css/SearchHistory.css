@@ -1,14 +1,12 @@
-/* Container Styling */
 .search-history-container {
     background-color: #f8f9fa;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-height: 80vh; /* Limit height */
-    overflow-y: auto; /* Enable vertical scrolling */
+    height: auto; 
+    overflow-y: auto; 
 }
 
-/* Header Styling */
 .search-history-header {
     margin-bottom: 20px;
     font-weight: bold;
@@ -17,7 +15,6 @@
     font-family: 'Roboto', sans-serif;
 }
 
-/* List Group Item Styling */
 .list-group-item {
     display: flex;
     justify-content: space-between;
@@ -27,16 +24,15 @@
     margin-bottom: 10px;
     border-radius: 8px;
     transition: background-color 0.3s ease;
-    font-family: 'Roboto', sans-serif; /* Consistent font */
+    font-family: 'Roboto', sans-serif; 
 }
 
 .list-group-item:hover {
     background-color: #f1f1f1;
 }
 
-/* Text Muted Styling */
 .text-muted {
     font-size: 0.9rem;
     color: #6c757d;
-    font-family: 'Roboto', sans-serif; /* Consistent font */
+    font-family: 'Roboto', sans-serif; 
 }
