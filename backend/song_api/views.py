@@ -9,6 +9,8 @@ from django.http import JsonResponse
 from song_api import serializers
 from typing import List, Dict
 from django.utils import timezone
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 # Create your views here.
 
@@ -27,8 +29,13 @@ def trackDetails(request) -> Response:
         models.Song.DoesNotExist: If the requested song does not exist in the database.
 
     """
-    if models.Song.objects.filter(songName=request.data['search']).exists():
-        song = models.Song.objects.get(songName=request.data['search'])
+    all_songs = models.Song.objects.all()
+    song_names = [song.songName for song in all_songs]
+    search_query = request.data['search']
+    matched_song, score = process.extractOne(search_query, song_names, scorer=fuzz.token_set_ratio)
+
+    if score>=80:
+        song = models.Song.objects.get(songName=matched_song)
         if (timezone.now() - song.dateCreated).days <= 7:
             serializer = serializers.SongSerializer(song)
             recommended_songs = song.recommendedSongs.all().order_by('-popularity')
