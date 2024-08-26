@@ -47,11 +47,8 @@ Develop a web application to recommend song based on the music data from various
 To set up the project, follow these steps:
 1. Navigate to the backend directory.
 2. Install the required dependencies by running `pip install -r requirements.txt`.
-3. Start the Django server by running `python manage.py runserver`.
-
-4. Navigate to the frontend directory.
-5. Install the required dependencies by running `npm install`.
-6. Start the React development server by running `npm start`.
+3. Navigate to backend directory and follow the instructions given in its Readme file, to setup Backend.
+4. Navigate to frontend directory and follow the instructions given in its Readme file, to setup FrontEnd.
 
 
 ## Contact
