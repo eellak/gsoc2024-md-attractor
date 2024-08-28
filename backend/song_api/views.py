@@ -34,115 +34,128 @@ def trackDetails(request) -> Response:
     search_query = request.data['search']
     matched_song, score = process.extractOne(search_query, song_names, scorer=fuzz.token_set_ratio)
 
-    if score>=80:
-        song = models.Song.objects.get(songName=matched_song)
-        if (timezone.now() - song.dateCreated).days <= 7:
-            serializer = serializers.SongSerializer(song)
-            recommended_songs = song.recommendedSongs.all().order_by('-popularity')
-            recommendation = [s.songName for s in recommended_songs]
-            artistNetwork = song.artistName.all()
-            networkedArtistData = [{"artistName": a.artistName, "artistId": a.artistId} for a in artistNetwork]
-            networkedArtistName = [a['artistName'] for a in networkedArtistData][:11]
-            networkedArtistID = [a['artistId'] for a in networkedArtistData][:11]
-            return Response({"Recommended Songs": recommendation, "Song Name": song.songName, "Networked Artist": networkedArtistName[:11], "Networked Artist ID": networkedArtistID})
-        else:
-            spotifyInstance = spotifyAPI.SpotifyAPI(request.data)
-            songId, songName, collaboratedArtists, topTracks = spotifyInstance.getSongDetails()
-
-            if topTracks == "Error: No song found with the given name.":
-                return Response({"Error": topTracks})
-
-            graph = egoNetwork.ConstructGraph(collaboratedArtists)
-            artistEgoNEtwork = graph.extractArtists()
-            songPopularity = topTracksFromEgoNetwork(artistEgoNEtwork, topTracks)
-
-            networkedArtistID = list(collaboratedArtists.keys())
-            
-            recommendedSongsName = [data['name'] for data in songPopularity][:10]
-            recommendedSongsId = [data['id'] for data in songPopularity][:10]
-            recommendedSongsPopularity = [data['popularity'] for data in songPopularity][:10]
-
-            networkedArtistName = spotifyInstance.networkedArtist(networkedArtistID)
-
-            song.songId = songId
-            song.songName = songName
-            song.dateCreated = timezone.now()
-            song.save()
-
-            song.recommendedSongs.clear()
-            song.artistName.clear()
-
-            for id, name, songPopularity in zip(recommendedSongsId, recommendedSongsName, recommendedSongsPopularity):
-                if models.RecommendedSong.objects.filter(songId=id).exists(): 
-                    suggestion = models.RecommendedSong.objects.get(songId=id)
-                else:
-                    suggestion = models.RecommendedSong.objects.create(songId=id, songName=name, popularity=songPopularity)
-                    suggestion.save()
-                song.recommendedSongs.add(suggestion)
-
-            for artistID, artistName in zip(networkedArtistID, networkedArtistName):
-                if models.ArtistNetwork.objects.filter(artistId=artistID).exists():
-                    artist = models.ArtistNetwork.objects.get(artistId=artistID)
-                else:
-                    artist = models.ArtistNetwork.objects.create(artistId=artistID, artistName=artistName)
-                    artist.save()
-                song.artistName.add(artist)
-
-            serializer = serializers.SongSerializer(song)
-            recommended_songs = song.recommendedSongs.all().order_by('-popularity')
-            recommendation = [s.songName for s in recommended_songs]
-
-            networkedArtistName = networkedArtistName[:11]
-            return Response({"Recommended Songs": recommendation, "Song Name": songName, "Networked Artist": networkedArtistName, "Networked Artist ID": networkedArtistID})
-
+    if score >= 80:
+        return handle_existing_song(matched_song, request.data)
     else:
-        spotifyInstance = spotifyAPI.SpotifyAPI(request.data)
-        songId, songName, collaboratedArtists, topTracks = spotifyInstance.getSongDetails()
+        return handle_new_song(search_query, request.data)
 
-        if topTracks == "Error: No song found with the given name.":
-            return Response({"Error": topTracks})
-        graph = egoNetwork.ConstructGraph(collaboratedArtists)
-        artistEgoNEtwork = graph.extractArtists()
-        songPopularity = topTracksFromEgoNetwork(artistEgoNEtwork, topTracks)
 
-        networkedArtistID = list(collaboratedArtists.keys())
-        
-        recommendedSongsName = [data['name'] for data in songPopularity][:10]
-        recommendedSongsId = [data['id'] for data in songPopularity][:10]
-        recommendedSongsPopularity = [data['popularity'] for data in songPopularity][:10]
+def handle_existing_song(matched_song, request_data):
+    try:
+        song = models.Song.objects.get(songName=matched_song)
+    except models.Song.DoesNotExist:
+        return Response({"Error": "Song does not exist."})
 
-        networkedArtistName = spotifyInstance.networkedArtist(networkedArtistID)
+    if (timezone.now() - song.dateCreated).days <= 7:
+        return get_recommendations_for_existing_song(song)
+    else:
+        return update_song_details_from_spotify(song, request_data)
 
-        if models.Song.objects.filter(songId = songId).exists():
-            song = models.Song.objects.get(songId = songId)
-            song.dateCreated = timezone.now()
-            song.save()
-        else:
-            song = models.Song.objects.create(songId = songId, songName = songName)
-        
-        for id, name, songPopularity in zip(recommendedSongsId, recommendedSongsName, recommendedSongsPopularity):
-            if models.RecommendedSong.objects.filter(songId=id).exists(): 
-                suggestion = models.RecommendedSong.objects.get(songId=id)
-            else:
-                suggestion = models.RecommendedSong.objects.create(songId=id, songName=name, popularity=songPopularity)
-                suggestion.save()
-            song.recommendedSongs.add(suggestion)
 
-        for artistID, artistName in zip(networkedArtistID, networkedArtistName):
-            if models.ArtistNetwork.objects.filter(artistId=artistID).exists():
-                artist = models.ArtistNetwork.objects.get(artistId=artistID)
-            else:
-                artist = models.ArtistNetwork.objects.create(artistId=artistID, artistName=artistName)
-                artist.save()
-            song.artistName.add(artist)
+def handle_new_song(search_query, request_data):
+    spotify_instance = spotifyAPI.SpotifyAPI(request_data)
+    song_id, song_name, collaborated_artists, top_tracks = spotify_instance.getSongDetails()
 
-        serializer = serializers.SongSerializer(song)
-        recommended_songs = song.recommendedSongs.all().order_by('-popularity')
-        recommendation = [s.songName for s in recommended_songs]
+    if top_tracks == "Error: No song found with the given name.":
+        return Response({"Error": top_tracks})
 
-        networkedArtistName = networkedArtistName[:11]
-        return Response({"Recommended Songs": recommendation, "Song Name": songName, "Networked Artist": networkedArtistName, "Networked Artist ID": networkedArtistID})
+    return create_new_song_entry(song_id, song_name, collaborated_artists, top_tracks)
 
+
+def get_recommendations_for_existing_song(song):
+    serializer = serializers.SongSerializer(song)
+    recommended_songs = song.recommendedSongs.all().order_by('-popularity')
+    recommendation = [s.songName for s in recommended_songs]
+
+    artist_network = song.artistName.all()
+    networked_artist_data = [
+        {"artistName": a.artistName, "artistId": a.artistId} for a in artist_network
+    ]
+    networked_artist_name = [a['artistName'] for a in networked_artist_data][:11]
+    networked_artist_id = [a['artistId'] for a in networked_artist_data][:11]
+
+    return Response({
+        "Recommended Songs": recommendation,
+        "Song Name": song.songName,
+        "Networked Artist": networked_artist_name,
+        "Networked Artist ID": networked_artist_id
+    })
+
+
+def update_song_details_from_spotify(song, request_data):
+    spotify_instance = spotifyAPI.SpotifyAPI(request_data)
+    song_id, song_name, collaborated_artists, top_tracks = spotify_instance.getSongDetails()
+
+    if top_tracks == "Error: No song found with the given name.":
+        return Response({"Error": top_tracks})
+
+    update_song_and_related_models(song, song_id, song_name, collaborated_artists, top_tracks)
+    return get_recommendations_for_existing_song(song)
+
+
+def create_new_song_entry(song_id, song_name, collaborated_artists, top_tracks):
+    graph = egoNetwork.ConstructGraph(collaborated_artists)
+    artist_ego_network = graph.extractArtists()
+    song_popularity = topTracksFromEgoNetwork(artist_ego_network, top_tracks)
+
+    networked_artist_id = list(collaborated_artists.keys())
+    recommended_songs_name = [data['name'] for data in song_popularity][:10]
+    recommended_songs_id = [data['id'] for data in song_popularity][:10]
+    recommended_songs_popularity = [data['popularity'] for data in song_popularity][:10]
+
+    spotify_instance = spotifyAPI.SpotifyAPI({})
+    networked_artist_name = spotify_instance.networkedArtist(networked_artist_id)
+
+    song, created = models.Song.objects.get_or_create(
+        songId=song_id,
+        defaults={'songName': song_name}
+    )
+    song.dateCreated = timezone.now()
+    song.save()
+
+    update_song_recommendations_and_artists(song, recommended_songs_id, recommended_songs_name, recommended_songs_popularity, networked_artist_id, networked_artist_name)
+
+    return get_recommendations_for_existing_song(song)
+
+
+def update_song_and_related_models(song, song_id, song_name, collaborated_artists, top_tracks):
+    graph = egoNetwork.ConstructGraph(collaborated_artists)
+    artist_ego_network = graph.extractArtists()
+    song_popularity = topTracksFromEgoNetwork(artist_ego_network, top_tracks)
+
+    networked_artist_id = list(collaborated_artists.keys())
+    recommended_songs_name = [data['name'] for data in song_popularity][:10]
+    recommended_songs_id = [data['id'] for data in song_popularity][:10]
+    recommended_songs_popularity = [data['popularity'] for data in song_popularity][:10]
+
+    spotify_instance = spotifyAPI.SpotifyAPI({})
+    networked_artist_name = spotify_instance.networkedArtist(networked_artist_id)
+
+    song.songId = song_id
+    song.songName = song_name
+    song.dateCreated = timezone.now()
+    song.save()
+
+    song.recommendedSongs.clear()
+    song.artistName.clear()
+
+    update_song_recommendations_and_artists(song, recommended_songs_id, recommended_songs_name, recommended_songs_popularity, networked_artist_id, networked_artist_name)
+
+
+def update_song_recommendations_and_artists(song, recommended_songs_id, recommended_songs_name, recommended_songs_popularity, networked_artist_id, networked_artist_name):
+    for id, name, popularity in zip(recommended_songs_id, recommended_songs_name, recommended_songs_popularity):
+        suggestion, created = models.RecommendedSong.objects.get_or_create(
+            songId=id,
+            defaults={'songName': name, 'popularity': popularity}
+        )
+        song.recommendedSongs.add(suggestion)
+
+    for artist_id, artist_name in zip(networked_artist_id, networked_artist_name):
+        artist, created = models.ArtistNetwork.objects.get_or_create(
+            artistId=artist_id,
+            defaults={'artistName': artist_name}
+        )
+        song.artistName.add(artist)
 
 
 @api_view(['GET'])
