@@ -79,7 +79,9 @@ def trackDetails(request) -> Response:
         serializer = serializers.SongSerializer(song)
         recommended_songs = song.recommendedSongs.all().order_by('-popularity')
         recommendation = [s.songName for s in recommended_songs]
-        return Response({"Recommended Songs": recommendation, "Networked Artist": networkedArtistName})
+
+        networkedArtistName = networkedArtistName[:11]
+        return Response({"Recommended Songs": recommendation, "Song Name": songName, "Networked Artist": networkedArtistName, "Networked Artist ID": networkedArtistID})
 
 
 
@@ -120,3 +122,36 @@ def topTracksFromEgoNetwork(artistNetwork: List[str], topTracks: Dict[str, List[
 
     recommendation = sorted(songList, key=lambda x: x['popularity'], reverse=True)
     return recommendation
+
+
+@api_view(['GET'])
+def songDetails(request, id: str) -> Response:
+    """
+    Retrieve details of a specific song by its ID.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+        id (int): The ID of the song.
+
+    Returns:
+        Response: The HTTP response object containing the serialized data of the song.
+    """
+    try:
+        song = models.Song.objects.get(songId=id)
+    except models.Song.DoesNotExist:
+        return Response({"Error": "Song not found"}, status=404)
+
+    serializer = serializers.SongSerializer(song)
+    recommended_songs = song.recommendedSongs.all().order_by('-popularity')
+    recommendation = [s.songName for s in recommended_songs]
+    artistNetwork = song.artistName.all()[:11]
+    networkedArtistName = [a.artistName for a in artistNetwork]
+    networkedArtistID = [a.artistId for a in artistNetwork]
+
+    data = {
+        "songName": song.songName,
+        "recommendedSongs": recommendation,
+        "networkedArtists": networkedArtistName,
+        "networkedArtistID": networkedArtistID
+    }
+    return Response(data)
