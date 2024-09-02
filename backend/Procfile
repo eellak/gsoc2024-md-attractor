@@ -1,0 +1,1 @@
+web: gunicorn MD_Attractor.wsgi --log-file -

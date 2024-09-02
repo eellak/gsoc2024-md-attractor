@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: md-attractor-backend
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "cd backend && gunicorn your_project_name.wsgi --log-file -"
+    plan: free
+    autoDeploy: true
+    healthCheckPath: "/"
+
+  - type: web
+    name: md-attractor-frontend
+    env: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: frontend/build
+    plan: free
+    autoDeploy: true
