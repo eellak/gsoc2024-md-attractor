@@ -9,6 +9,7 @@
 #### Other Details
 - **Contributor:** [Ayush Ray](https://github.com/aayushray)
 - **Mentors:** [Giannis Prokopiou](https://github.com/GiannisProkopiouOrfium), [Panagiotis Sfendourakis](https://github.com/sfendourakis)
+- Detailed Insights about the project is provided in this [Medium](https://medium.com/p/18518c6ca4df) blog.
 
 ## Project Overview
 
