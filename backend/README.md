@@ -29,3 +29,52 @@ http://localhost:8000/admin         #View Django admin panel
 http://localhost:8000/              #Song Search Feature
 http://localhost:8000/history       #View Search History
 ```
+
+Certainly! Below is an updated section for your `README.md` that addresses the installation issue and provides a resolution.
+
+---
+
+# Installation Issue
+
+When running `npm install`, you may encounter the following error:
+
+```
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-vis-network@1.0.0
+npm error Found: react@18.3.1
+npm error node_modules/react
+npm error   react@"^18.3.1" from the root project
+npm error   peer react@"^18.0.0" from @testing-library/react@13.4.0
+npm error   node_modules/@testing-library/react
+npm error   @testing-library/react@"^13.4.0" from the root project
+npm error   7 more (react-dom, react-graph-vis, react-loader-spinner, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"^16.0.0" from react-vis-network@1.0.0
+npm error node_modules/react-vis-network
+npm error   react-vis-network@"^1.0.0" from the root project
+npm error
+npm error Conflicting peer dependency: react@16.14.0
+npm error node_modules/react
+npm error   peer react@"^16.0.0" from react-vis-network@1.0.0
+npm error   node_modules/react-vis-network
+npm error   react-vis-network@"^1.0.0" from the root project
+npm error
+```
+
+This error occurs because there is a conflict between the version of `react` installed in your project (`react@18.3.1`) and the peer dependency required by the `react-vis-network` package (`react@^16.0.0`).
+
+### Resolution
+
+To resolve this issue, use the following command to bypass the peer dependency conflict:
+
+```bash
+npm install --legacy-peer-deps
+```
+
+### Explanation
+
+- The `--legacy-peer-deps` flag tells npm to ignore the peer dependency conflicts and install the packages anyway.
+- This is useful when you're working with packages that have not been updated to support the latest versions of their dependencies, or when you're using specific versions of libraries that are incompatible with the latest versions.
