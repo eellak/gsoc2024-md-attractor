@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Graph from 'react-graph-vis';
+import ForceGraph2D from 'react-force-graph-2d';
+
+
+
+
 
 const ArtistGraph = ({ artists, artistImages }) => {
   const [graph, setGraph] = useState({ nodes: [], edges: [] });
@@ -76,17 +80,16 @@ const ArtistGraph = ({ artists, artistImages }) => {
   return (
     <div style={{ height: '500px' }}>
       {graph && graph.nodes.length > 0 && (
-        <Graph
-          graph={graph}
-          options={options}
-          events={{
-            select: ({ nodes }) => {
-              if (nodes.length > 0) {
-                console.log('Selected node:', nodes[0]);
-              }
-            },
+        <ForceGraph2D
+          graphData={{
+            nodes: graph.nodes,
+            links: graph.edges,
+          }}
+          onNodeClick={(node) => {
+            console.log('Selected node:', node);
           }}
         />
+
       )}
     </div>
   );
